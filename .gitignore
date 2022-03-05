@@ -9,6 +9,10 @@ __pycache__
 *.egg-info
 
 
+# Creds #
+############
+password.txt
+
 # Other #
 ############
 .venv

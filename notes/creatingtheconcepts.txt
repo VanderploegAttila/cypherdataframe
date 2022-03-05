@@ -1,0 +1,5 @@
+Core label
+
+codeNodeLabel=Material
+
+match(corenode:<codeNodeLabel>)

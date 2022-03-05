@@ -1,4 +1,13 @@
 from cydflib import testfunctions
-def test_haversine():
-    assert testfunctions.haversine(52.370216, 4.895168, 52.520008,
-                                 13.404954) == 945793.4375088713
+import unittest
+
+from cydflib.model.Query import Query
+
+
+class WidgetTestCase(unittest.TestCase):
+    def test_run(self):
+        testfunctions.cypher_query_test("match(m:Material) return m;")
+    def test_integration(self):
+        q = Query('Material', ['id', 'createdOn'])
+        testfunctions.cypher_query_test(q.cypher_query())
+
