@@ -10,8 +10,3 @@ class QueryTestCase(unittest.TestCase):
 
         print(q.cypher_query())
 
-    def test_to_dataframe(self):
-        q = Query('Material', ['id', 'createdOn']).to_dataframe()
-        print()
-        print(q)
-
