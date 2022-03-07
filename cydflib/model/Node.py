@@ -8,5 +8,5 @@ class Node:
     label: str
     properties: list[Property]
 
-    def return_properties(self):
-        return [f"{self.label}.{prop.label}" for prop in self.properties]
+    def return_properties(self) -> dict[str, Property]:
+        return {f"{self.label}.{prop.label}":prop for prop in self.properties}

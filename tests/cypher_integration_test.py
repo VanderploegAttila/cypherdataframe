@@ -15,4 +15,6 @@ _conf_path =f'{dir_path}/../conf.ini'
 def test_query_to_dataframe(query_material_1):
     conf = load_config(_conf_path)
     df = query_to_dataframe(query_material_1,conf)
+    print()
     print(df)
+    print(df.dtypes)
