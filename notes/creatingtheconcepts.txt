@@ -3,3 +3,15 @@ Core label
 codeNodeLabel=Material
 
 match(corenode:<codeNodeLabel>)
+
+
+
+return
+
+
+
+branch fragament
+
+match(corenode:<codeNodeLabel>)
+
+optional match(corenode)<back>-[<relationship>]-<forward>(<label>:<label>)
