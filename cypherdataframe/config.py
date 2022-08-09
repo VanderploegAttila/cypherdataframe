@@ -1,6 +1,6 @@
 import configparser
 
-from cydflib.model.Config import Config
+from cypherdataframe.model.Config import Config
 from dacite import from_dict
 
 

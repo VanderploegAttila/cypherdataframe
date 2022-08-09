@@ -1,17 +1,19 @@
 from dataclasses import dataclass
 import functools
 import operator
-from cydflib.model.Branch import Branch
-from cydflib.model.Node import Node
-from cydflib.model.Property import Property
+from typing import Optional
+
+from cypherdataframe.model.Branch import Branch
+from cypherdataframe.model.LabelNode import LabelNode
+from cypherdataframe.model.Property import Property
 
 
 @dataclass(frozen=True)
 class Query:
-    core_node: Node
+    core_node: LabelNode
     branches: list[Branch]
-    skip: int = 0
-    limit: int = 10000
+    skip: Optional[int]
+    limit: Optional[int]
 
     def property_names(self) -> dict[str, Property]:
         property_names = {f"corenode.{prop.label}": prop
@@ -26,9 +28,11 @@ class Query:
         )
 
     def cypher_query(self) -> str:
+        skip_string = f"skip {self.skip}" if self.skip is not None else ""
+        limit_string = f"limit {self.limit}" if self.limit is not None else ""
         matches = [
                       f'match(corenode:{self.core_node.label}) ' +
-                      f'with corenode skip {self.skip} limit {self.limit}'
+                      f'with corenode {skip_string} {limit_string}'
                   ] + [
                       branch.cypher_fragment() for branch in self.branches
                   ]

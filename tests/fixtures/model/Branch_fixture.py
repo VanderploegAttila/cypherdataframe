@@ -1,7 +1,7 @@
 import pytest
 
-from cydflib.model.Branch import Branch
-from cydflib.model.Node import Node
+from cypherdataframe.model.Branch import Branch
+from cypherdataframe.model.LabelNode import LabelNode
 
 
 @pytest.fixture

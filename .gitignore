@@ -16,3 +16,4 @@ conf.ini
 # Other #
 ############
 .venv
+*ignorefunctions.py

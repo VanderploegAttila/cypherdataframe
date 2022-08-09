@@ -1,8 +1,6 @@
 import pytest
-
-from cydflib.model.Branch import Branch
-from cydflib.model.Node import Node
-from cydflib.model.Query import Query
+import pytest
+from cypherdataframe.model.Query import Query
 
 
 @pytest.fixture

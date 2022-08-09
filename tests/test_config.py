@@ -1,6 +1,6 @@
 import unittest
 
-from cydflib.config import load_config
+from cypherdataframe.config import load_config
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 

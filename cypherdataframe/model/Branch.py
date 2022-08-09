@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from cydflib.model.Node import Node
+from cypherdataframe.model.LabelNode import LabelNode
 
 
 # optional match(corenode)<back>-[<relationship>]-<forward>(<label>:<label>)
@@ -9,7 +9,7 @@ from cydflib.model.Node import Node
 class Branch:
     relationship: str
     away_direction: bool
-    branch_node: Node
+    branch_node: LabelNode
 
     def cypher_fragment(self) -> str:
         if self.away_direction:
