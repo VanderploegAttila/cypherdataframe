@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 setup(
     name='cypherdataframe',
     packages=find_packages(include=['cypherdataframe','cypherdataframe.model']),
-    version='0.2.1',
+    version='0.3.1',
     description='Cypher Query to df Toolkit',
     author='Attila Vanderploeg',
     license='MIT',
