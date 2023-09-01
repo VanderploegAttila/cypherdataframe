@@ -12,26 +12,27 @@ class Branch:
     branch_node: LabelNode
     optional: bool
 
-    def property_fragments_by_cypher_assignments(self):
-        if self.branch_node.collect:
-            start_cap = "collect("
-            end_cap = ")"
-        else:
-            start_cap = ""
-            end_cap = ""
-
+    def property_fragments_by_cypher_assignments(
+            self
+            , core_node_assignment: str
+            ):
         if self.relationship == None:
             prop_by = {
                self.relationship_cypher_assignment(): (
-                    f" {start_cap}{self.relationship_cypher_assignment()}{end_cap}"
+                    f" type({self.relationship_cypher_assignment()})"
                     f" as {self.relationship_cypher_assignment()} "
+                ),
+                self.relationship_direction_cypher_assignment(): (
+                    f" (startNode({self.relationship_cypher_assignment()}) = {core_node_assignment})"
+                    f" as {self.relationship_direction_cypher_assignment()} "
                 )
             }
         else:
             prop_by = {}
-
         return prop_by
 
+    def relationship_direction_cypher_assignment(self) -> str:
+        return self.relationship_cypher_assignment()+"d"
     def relationship_cypher_assignment(self) -> str:
         return f"{self.branch_node.label.lower()}_rel"
 

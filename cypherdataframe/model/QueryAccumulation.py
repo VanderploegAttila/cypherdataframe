@@ -37,7 +37,7 @@ def accumulate_add_value_match(
     node_assignments = \
         branch.branch_node.property_fragments_by_cypher_assignments()
     branch_assignments = \
-        branch.property_fragments_by_cypher_assignments()
+        branch.property_fragments_by_cypher_assignments(core_node.return_id)
 
     new_with_assignments = \
         [core_node.return_id] + \
@@ -52,8 +52,9 @@ def accumulate_add_value_match(
     new_branch_frags = \
         accumulation.branch_fragments + [value_match + branch_with_statement]
 
-
-    new_final_assign = accumulation.accumulated_final_assignments + list(node_assignments.keys())
+    new_final_assign = accumulation.accumulated_final_assignments + \
+        list(node_assignments.keys()) +\
+        list(branch_assignments.keys())
     new_acc = dataclasses.replace(
         accumulation
         , accumulated_assignments=new_assign

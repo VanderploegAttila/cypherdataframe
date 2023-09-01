@@ -30,8 +30,16 @@ class Query:
 
     def to_cypher(self) -> str:
 
-        first_core_match = f'match({self.core_node.return_id}:{self.core_node.label}) '
+        for branch in self.branches:
+            if (branch.relationship is None) and (not branch.optional):
+                print(
+                    f"WARNING: Branch has a None relationship"
+                    f" and is not optional."
+                    f" Expect significantly degraded query time."
+                    f" Branch: {branch}"
+                )
 
+        first_core_match = f'match({self.core_node.return_id}:{self.core_node.label}) '
 
         if all([branch.away_from_core for branch in self.branches]):
             scan_core_str = ""

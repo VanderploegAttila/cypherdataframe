@@ -12,10 +12,10 @@ class BranchMaker(ABC):
     props: list[Property]
     label: str
     post_label: str | None
-    relationship: str
+    relationship: str | None
     relationship_postfix: str | None
     required: bool
-    archived: bool
+    away_from_core: bool | None
     domain_label: str | None
 
 
@@ -35,7 +35,7 @@ class BranchMaker(ABC):
     def to_branch(self) -> Branch:
         return Branch(
             relationship=self.relationship
-            , away_from_core=not self.archived
+            , away_from_core=self.away_from_core
             , branch_node=self.to_label_node()
             , optional=not self.required
         )
