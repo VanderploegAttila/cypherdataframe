@@ -42,6 +42,11 @@ class Branch:
             return None
 
     def match_statement(self, corenode: LabelNode, with_assignment: bool):
+        if self.branch_node.post_label_str:
+            post_label = self.branch_node.post_label_str
+        else:
+            post_label = ""
+
         if self.away_from_core == True:
             back = ''
             forward = '>'
@@ -71,7 +76,7 @@ class Branch:
             f" {optional} " 
             f"match({corenode.return_id}){back}" 
             f"-[{relationship_str}]-"
-            f"{forward}({node_id}:{self.branch_node.label})"
+            f"{forward}({node_id}:{self.branch_node.label}{post_label})"
         )
 
         return fragment

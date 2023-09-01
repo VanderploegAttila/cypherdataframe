@@ -8,10 +8,11 @@ from cypherdataframe.model.Property import Property
 
 @dataclass
 class MeasureBranch(BranchMaker):
-    domain_label: str | None = None
-    props_tag: str | None = "Measure"
-    props: list[Property] | None = None
-    not_archived: bool | None = True
+    props: list[Property]
+    post_label: str | None = None
     relationship: str = field(default_factory=lambda: MEASURE_RELATIONSHIP)
-    relationship_postfix: str = field(default_factory=lambda: MEASURE_RETURN_POSTFIX)
+    relationship_postfix: str | None = field(default_factory=lambda: MEASURE_RETURN_POSTFIX)
+    required: bool = False
+    archived: bool = False
+    domain_label: str | None = None
 

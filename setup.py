@@ -1,8 +1,19 @@
 from setuptools import find_packages, setup
 setup(
     name='cypherdataframe',
-    packages=find_packages(include=['cypherdataframe','cypherdataframe.model']),
-    version='0.3.1',
+    packages=find_packages(
+        include=[
+            'cypherdataframe',
+            'cypherdataframe.model',
+            'cypherdataframe.garner_domain',
+            'cypherdataframe.garner_domain.logistics',
+            'cypherdataframe.garner_domain.measure',
+            'cypherdataframe.garner_domain.queries',
+            'cypherdataframe.garner_domain.reference',
+            'cypherdataframe.garner_domain.status'
+        ]
+    ),
+    version='0.5.1',
     description='Cypher Query to df Toolkit',
     author='Attila Vanderploeg',
     license='MIT',

@@ -7,6 +7,7 @@ from cypherdataframe.model.Property import Property
 class LabelNode:
     return_id: str
     label: str
+    post_label_str: str | None
     properties: list[Property]
     collect: bool = False
 

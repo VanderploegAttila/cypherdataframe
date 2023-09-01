@@ -11,6 +11,7 @@ from cypherdataframe.model.Property import Property
 class TransferBranch(BranchMaker):
     props: list[Property]
     label: str = TRANSFER_LABEL
+    post_label: str | None = None
     relationship: str = field(default_factory=lambda: TRANSFER_RELATIONSHIP)
     relationship_postfix: str | None = field(default_factory=lambda: TRANSFER_RETURN_ID)
     required: bool = False

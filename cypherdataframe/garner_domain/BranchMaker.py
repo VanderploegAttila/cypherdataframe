@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 class BranchMaker(ABC):
     props: list[Property]
     label: str
+    post_label: str | None
     relationship: str
     relationship_postfix: str | None
     required: bool
@@ -44,4 +45,5 @@ class BranchMaker(ABC):
             return_id=self.return_id()
             , label=self.node_label()
             , properties=self.props
+            , post_label_str=self.post_label
         )
