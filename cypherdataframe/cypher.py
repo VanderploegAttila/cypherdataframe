@@ -146,6 +146,7 @@ def all_for_query_in_chunks(
         , max_total_chunks: int
         , gather_to_dir: str
         , meta_gather_dir: str
+        , gather_csv: bool
 ) -> None:
     meta_path = f'{save_directory}/meta.csv'
     meta_gather_path = f'{meta_gather_dir}/{table_name_root}_meta.csv'
@@ -265,7 +266,8 @@ def all_for_query_in_chunks(
     gather_chunks_from_dir(
         gather_to_dir=gather_to_dir,
         read_directory=save_directory,
-        table_name_root=table_name_root
+        table_name_root=table_name_root,
+        gather_csv=gather_csv
     )
     __add_to_meta(
         meta_path,
@@ -297,7 +299,12 @@ def all_for_query_in_chunks(
     __gather_to_meta(meta_path, meta_gather_path)
 
 
-def gather_chunks_from_dir(gather_to_dir: str, read_directory: str, table_name_root: str):
+def gather_chunks_from_dir(
+        gather_to_dir: str
+        , read_directory: str
+        , table_name_root: str
+        , gather_csv: bool
+    ):
     if os.path.isdir(read_directory):
         df_list = []
         for file_name in os.listdir(read_directory):
@@ -310,11 +317,11 @@ def gather_chunks_from_dir(gather_to_dir: str, read_directory: str, table_name_r
             df = pd.concat(df_list).reset_index(drop=True)
             if not os.path.isdir(gather_to_dir):
                 os.makedirs(gather_to_dir)
-
-            df.to_csv(
-                f"{gather_to_dir}/{table_name_root}-gathered.csv",
-                index=False
-            )
+            if gather_csv:
+                df.to_csv(
+                    f"{gather_to_dir}/{table_name_root}-gathered.csv",
+                    index=False
+                )
             df.to_feather(
                 f"{gather_to_dir}/{table_name_root}-gathered.feather"
             )
