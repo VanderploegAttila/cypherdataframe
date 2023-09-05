@@ -13,7 +13,7 @@ setup(
             'cypherdataframe.garner_domain.status'
         ]
     ),
-    version='0.6.1',
+    version='0.7.1',
     description='Cypher Query to df Toolkit',
     author='Attila Vanderploeg',
     license='MIT',

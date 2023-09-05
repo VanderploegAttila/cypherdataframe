@@ -146,8 +146,11 @@ def all_for_query_in_chunks(
         , max_total_chunks: int
         , gather_to_dir: str
         , meta_gather_dir: str
-        , gather_csv: bool
-) -> None:
+        , gather_csv: bool = False
+        , just_gather: bool = False
+        , top_up: bool = False
+        , deduplicate_gather: bool = False
+        ) -> None:
     meta_path = f'{save_directory}/meta.csv'
     meta_gather_path = f'{meta_gather_dir}/{table_name_root}_meta.csv'
     if not os.path.isdir(meta_gather_dir):
@@ -165,7 +168,7 @@ def all_for_query_in_chunks(
 
 
     if df_meta.shape[0] > 0:
-        if 'gather' not in df_meta['increment'].values.tolist():
+        if ('gather' not in df_meta['increment'].values.tolist()) or top_up:
             start_chunk = df_meta['increment'].max() + 1
             total_keys = df_meta['keys'].sum()
         else:
@@ -180,7 +183,7 @@ def all_for_query_in_chunks(
     inc_chunk = 0
     runs_without_data = 0
 
-    while True:
+    while not just_gather:
         try:
             chunk_start_time = time.time()
             current_chunk = start_chunk + inc_chunk
@@ -258,7 +261,6 @@ def all_for_query_in_chunks(
             print("Chunk Done")
             break
 
-
         inc_chunk += 1
 
     start_gather_time = time.time()
@@ -267,7 +269,8 @@ def all_for_query_in_chunks(
         gather_to_dir=gather_to_dir,
         read_directory=save_directory,
         table_name_root=table_name_root,
-        gather_csv=gather_csv
+        gather_csv=gather_csv,
+        deduplicate_gather=deduplicate_gather
     )
     __add_to_meta(
         meta_path,
@@ -304,7 +307,8 @@ def gather_chunks_from_dir(
         , read_directory: str
         , table_name_root: str
         , gather_csv: bool
-    ):
+        , deduplicate_gather: bool
+        ):
     if os.path.isdir(read_directory):
         df_list = []
         for file_name in os.listdir(read_directory):
@@ -315,6 +319,9 @@ def gather_chunks_from_dir(
                 df_list.append(pd.read_feather(f"{read_directory}/{file_name}"))
         if len(df_list) > 0:
             df = pd.concat(df_list).reset_index(drop=True)
+            if deduplicate_gather:
+                df = df.drop_duplciates()
+
             if not os.path.isdir(gather_to_dir):
                 os.makedirs(gather_to_dir)
             if gather_csv:
