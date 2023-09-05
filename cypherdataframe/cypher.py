@@ -49,7 +49,7 @@ def all_for_query_in_steps(
         , step: int
         , limit: int
         , start_skip: int
-):
+        ) -> pd.DataFrame | None:
     skip = start_skip
     len_df = 1
     df_list = []
@@ -73,9 +73,13 @@ def all_for_query_in_steps(
         print(f"rows returned {len_df}")
         print(f"--- {(time.time() - start_time)} seconds ---")
         print()
-        df_list.append(df)
+        if (len_df>0):
+            df_list.append(df)
         skip = skip + step
-    return pd.concat(df_list).reset_index(drop=True)
+    if len(df_list)>0:
+        return pd.concat(df_list).reset_index(drop=True)
+    else:
+        return None
 
 def __make_meta(meta_path: str) -> None:
     df_meta = pd.DataFrame(
@@ -93,6 +97,14 @@ def __make_meta(meta_path: str) -> None:
             'total_time'
         ]
     )
+    df_meta.to_csv(meta_path, index=False)
+
+
+def __drop_gather_from_meta(
+        meta_path: str
+):
+    df_meta = pd.read_csv(meta_path)
+    df_meta = df_meta[df_meta['chunk_size'] > 0]
     df_meta.to_csv(meta_path, index=False)
 
 
@@ -150,8 +162,11 @@ def all_for_query_in_chunks(
         , just_gather: bool = False
         , top_up: bool = False
         , deduplicate_gather: bool = False
+        , first_chunk_set_size: int | None = None
         ) -> None:
     meta_path = f'{save_directory}/meta.csv'
+    if first_chunk_set_size is None and top_up:
+        first_chunk_set_size = 10
 
     if not os.path.isdir(meta_gather_dir):
         os.makedirs(meta_gather_dir)
@@ -169,8 +184,9 @@ def all_for_query_in_chunks(
 
     if df_meta.shape[0] > 0:
         if ('gather' not in df_meta['increment'].values.tolist()) or top_up:
-            start_chunk = df_meta['increment'].max() + 1
-            total_keys = df_meta['keys'].sum()
+            df_meta_inc = df_meta[df_meta['chunk_size'] > 0]
+            start_chunk = int(df_meta_inc['increment'].max()) + 1
+            total_keys = df_meta_inc['keys'].sum()
         else:
             print("Already Gathered")
             print()
@@ -197,13 +213,36 @@ def all_for_query_in_chunks(
                 f"Time: {time.strftime('%H:%M:%S', time.localtime())}"
             )
 
-            df = all_for_query_in_steps(
+            if (first_chunk_set_size is not None) & (inc_chunk == 0):
+                this_chunk_size = first_chunk_set_size
+                this_step = first_chunk_set_size
+            else:
+                this_chunk_size = chunk_size
+                this_step = step
+
+            df: pd.DataFrame | None = all_for_query_in_steps(
                 query
                 , config
-                , step=step
-                , limit=chunk_size
+                , step=this_step
+                , limit=this_chunk_size
                 , start_skip=total_keys
             )
+            data_extracted_time = time.time()
+            if df is not None:
+                df.to_csv(
+                    f"{save_directory}/{table_name_root}_{current_chunk}.csv",
+                    index=False
+                )
+                df.to_feather(
+                    f"{save_directory}/{table_name_root}_{current_chunk}.feather"
+                )
+                data_stored_time = time.time()
+                df_keys = df[df.columns[0]].nunique()
+                df_rows = df.shape[0]
+            else:
+                data_stored_time = time.time()
+                df_keys = 0
+                df_rows = 0
 
         except Exception as e:
             print(f"Whoops {exceptions} waiting 10 s")
@@ -218,24 +257,14 @@ def all_for_query_in_chunks(
             else:
                 continue
 
-        data_extracted_time = time.time()
-        df.to_csv(
-            f"{save_directory}/{table_name_root}_{current_chunk}.csv",
-            index=False
-        )
-        df.to_feather(
-            f"{save_directory}/{table_name_root}_{current_chunk}.feather"
-        )
-        data_stored_time = time.time()
-        df_keys = df[df.columns[0]].nunique()
-        df_rows = df.shape[0]
+
 
         __add_to_meta(
             meta_path,
             increment=current_chunk,
             keys=df_keys,
             rows=df_rows,
-            chunk_size=chunk_size,
+            chunk_size=this_chunk_size,
             start_time=datetime.fromtimestamp(chunk_start_time, tz=None),
             data_extracted_time=datetime.fromtimestamp(data_extracted_time, tz=None),
             data_stored_time=datetime.fromtimestamp(data_stored_time, tz=None),
@@ -244,12 +273,12 @@ def all_for_query_in_chunks(
             total_time=(data_stored_time - chunk_start_time) /60
         )
         total_keys += df_keys
-        if df.shape[0] < 1:
+        if df_rows < 1:
             runs_without_data += 1
         else:
             runs_without_data = 0
 
-        if df_keys < chunk_size and query.enforce_complete_chunks:
+        if df_keys < this_chunk_size and query.enforce_complete_chunks:
             print(f"Incomplete chunk with enforce_complete_chunks turned on")
             print("Chunk Done")
             break
@@ -273,6 +302,7 @@ def all_for_query_in_chunks(
     )
     if (gather_success):
         df_meta = pd.read_csv(meta_path)
+        __drop_gather_from_meta(meta_path)
         __add_to_meta(
             meta_path,
             increment="gather",
@@ -291,7 +321,7 @@ def all_for_query_in_chunks(
             increment="process_total",
             rows=df_meta['rows'].sum(),
             keys=df_meta['keys'].sum(),
-            chunk_size=df_meta['chunk_size'].sum(),
+            chunk_size=0,
             start_time=datetime.fromtimestamp(process_start_time, tz=None),
             data_extracted_time=None,
             data_stored_time=None,
