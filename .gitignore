@@ -17,3 +17,4 @@ conf.ini
 ############
 .venv
 *ignorefunctions.py
+*/test_ignore/*
