@@ -265,41 +265,41 @@ def all_for_query_in_chunks(
 
     start_gather_time = time.time()
 
-    gather_chunks_from_dir(
+    gather_success = gather_chunks_from_dir(
         gather_to_dir=gather_to_dir,
         read_directory=save_directory,
         table_name_root=table_name_root,
         gather_csv=gather_csv,
         deduplicate_gather=deduplicate_gather
     )
-    __add_to_meta(
-        meta_path,
-        increment="gather",
-        rows=0,
-        keys=0,
-        chunk_size=0,
-        start_time=datetime.fromtimestamp(start_gather_time, tz=None),
-        data_extracted_time=None,
-        data_stored_time=None,
-        extraction_time=0,
-        storage_time=0,
-        total_time=(time.time() - start_gather_time) /60
-    )
-
-    __add_to_meta(
-        meta_path,
-        increment="process_total",
-        rows=0,
-        keys=0,
-        chunk_size=0,
-        start_time=datetime.fromtimestamp(process_start_time, tz=None),
-        data_extracted_time=None,
-        data_stored_time=None,
-        extraction_time=0,
-        storage_time=0,
-        total_time=(time.time() - process_start_time) / 60
-    )
-    __gather_to_meta(meta_path, meta_gather_path)
+    if (gather_success):
+        __add_to_meta(
+            meta_path,
+            increment="gather",
+            rows=0,
+            keys=0,
+            chunk_size=0,
+            start_time=datetime.fromtimestamp(start_gather_time, tz=None),
+            data_extracted_time=None,
+            data_stored_time=None,
+            extraction_time=0,
+            storage_time=0,
+            total_time=(time.time() - start_gather_time) /60
+        )
+        __add_to_meta(
+            meta_path,
+            increment="process_total",
+            rows=0,
+            keys=0,
+            chunk_size=0,
+            start_time=datetime.fromtimestamp(process_start_time, tz=None),
+            data_extracted_time=None,
+            data_stored_time=None,
+            extraction_time=0,
+            storage_time=0,
+            total_time=(time.time() - process_start_time) / 60
+        )
+        __gather_to_meta(meta_path, meta_gather_path)
 
 
 def gather_chunks_from_dir(
@@ -308,7 +308,7 @@ def gather_chunks_from_dir(
         , table_name_root: str
         , gather_csv: bool
         , deduplicate_gather: bool
-        ):
+        ) -> bool:
     if os.path.isdir(read_directory):
         df_list = []
         for file_name in os.listdir(read_directory):
@@ -316,19 +316,29 @@ def gather_chunks_from_dir(
             if ".feather" in file_name \
                     and "-gathered.feather" not in file_name \
                     and file_size > 10:
-                df_list.append(pd.read_feather(f"{read_directory}/{file_name}"))
+                feather_to_gather = f"{read_directory}/{file_name}"
+                try:
+                    df1 = pd.read_feather(feather_to_gather)
+                except Exception as e:
+                    print(feather_to_gather)
+                    print(e)
+                    return False
+                df_list.append(df1)
         if len(df_list) > 0:
             df = pd.concat(df_list).reset_index(drop=True)
-            if deduplicate_gather:
-                df = df.drop_duplciates()
+            if(df.shape[0]>0):
+                if deduplicate_gather:
+                    df = df.drop_duplciates()
 
-            if not os.path.isdir(gather_to_dir):
-                os.makedirs(gather_to_dir)
-            if gather_csv:
-                df.to_csv(
-                    f"{gather_to_dir}/{table_name_root}-gathered.csv",
-                    index=False
+                if not os.path.isdir(gather_to_dir):
+                    os.makedirs(gather_to_dir)
+                if gather_csv:
+                    df.to_csv(
+                        f"{gather_to_dir}/{table_name_root}-gathered.csv",
+                        index=False
+                    )
+                df.to_feather(
+                    f"{gather_to_dir}/{table_name_root}-gathered.feather"
                 )
-            df.to_feather(
-                f"{gather_to_dir}/{table_name_root}-gathered.feather"
-            )
+                return True
+        return False
