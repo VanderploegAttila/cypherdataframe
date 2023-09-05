@@ -152,7 +152,7 @@ def all_for_query_in_chunks(
         , deduplicate_gather: bool = False
         ) -> None:
     meta_path = f'{save_directory}/meta.csv'
-    meta_gather_path = f'{meta_gather_dir}/{table_name_root}_meta.csv'
+
     if not os.path.isdir(meta_gather_dir):
         os.makedirs(meta_gather_dir)
 
@@ -194,7 +194,8 @@ def all_for_query_in_chunks(
             print(
                 f"Chunk: {current_chunk} "
                 f"Keys So Far: {total_keys} "
-                f"Time: {time.strftime('%H:%M:%S', time.localtime())}")
+                f"Time: {time.strftime('%H:%M:%S', time.localtime())}"
+            )
 
             df = all_for_query_in_steps(
                 query
@@ -203,8 +204,6 @@ def all_for_query_in_chunks(
                 , limit=chunk_size
                 , start_skip=total_keys
             )
-
-
 
         except Exception as e:
             print(f"Whoops {exceptions} waiting 10 s")
@@ -273,6 +272,7 @@ def all_for_query_in_chunks(
         deduplicate_gather=deduplicate_gather
     )
     if (gather_success):
+        df_meta = pd.read_csv(meta_path)
         __add_to_meta(
             meta_path,
             increment="gather",
@@ -289,9 +289,9 @@ def all_for_query_in_chunks(
         __add_to_meta(
             meta_path,
             increment="process_total",
-            rows=0,
-            keys=0,
-            chunk_size=0,
+            rows=df_meta['rows'].sum(),
+            keys=df_meta['keys'].sum(),
+            chunk_size=df_meta['chunk_size'].sum(),
             start_time=datetime.fromtimestamp(process_start_time, tz=None),
             data_extracted_time=None,
             data_stored_time=None,
@@ -299,6 +299,7 @@ def all_for_query_in_chunks(
             storage_time=0,
             total_time=(time.time() - process_start_time) / 60
         )
+        meta_gather_path = f'{meta_gather_dir}/{table_name_root}_meta.csv'
         __gather_to_meta(meta_path, meta_gather_path)
 
 
