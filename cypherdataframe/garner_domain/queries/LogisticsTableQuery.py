@@ -13,6 +13,7 @@ class LogisticsTableQuery:
     post_label: str | None = None
     return_id: str = "l"
     props: list[Property] = field(default_factory=lambda: [ID_PROP])
+
     def to_query(self, skip: int | None = None, limit: int | None = None):
         return Query(
             LabelNode(
