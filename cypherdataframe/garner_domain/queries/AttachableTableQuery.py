@@ -15,25 +15,29 @@ class AttachableTableQuery:
     attachable_props: list[Property]
     post_label: str | None = None
     attachable_return_id: str = "a"
+    disable_scan: bool = False
+    relationship = None
+    away_from_core  = None
 
     def to_query(self, skip: int | None = None, limit: int | None = None):
         domain_branch = BranchMaker(
             props=[ID_PROP],
             label=self.domain_label,
             post_label=None,
-            relationship=None,
+            relationship=self.relationship,
             relationship_postfix=None,
-            required=False,
-            away_from_core=None,
+            required=True,
+            away_from_core=self.away_from_core,
             domain_label=None
         )
 
         table_current = LogisticsTableQuery(
             branchMakers=[domain_branch],
             label=self.attachable_label,
-            post_label=None,
+            post_label=self.post_label,
             return_id=self.attachable_return_id,
-            props=self.attachable_props
+            props=self.attachable_props,
+            disable_scan=self.disable_scan
         )
         return table_current.to_query(skip=skip, limit=limit)
 

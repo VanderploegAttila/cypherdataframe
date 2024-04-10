@@ -13,7 +13,7 @@ class LogisticsTableQuery:
     post_label: str | None = None
     return_id: str = "l"
     props: list[Property] = field(default_factory=lambda: [ID_PROP])
-
+    disable_scan: bool = False
     def to_query(self, skip: int | None = None, limit: int | None = None):
         return Query(
             LabelNode(
@@ -24,6 +24,7 @@ class LogisticsTableQuery:
                 post_label_str=self.post_label
             ),
             branches=[b.to_branch() for b in self.branchMakers],
+            disable_scan=self.disable_scan,
             skip=skip,
             limit=limit
         )

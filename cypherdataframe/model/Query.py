@@ -15,6 +15,7 @@ class Query:
     skip: int | None = field(default_factory=lambda: None)
     limit: int | None = field(default_factory=lambda: None)
     enforce_complete_chunks: bool = field(default_factory=lambda: True)
+    disable_scan:bool = False
 
     def all_properties_by_final_assigment(self) -> dict[str, Property]:
 
@@ -38,10 +39,13 @@ class Query:
                     f" Expect significantly degraded query time."
                     f" Branch: {branch}"
                 )
+        if self.core_node.post_label_str:
+            post_label = self.core_node.post_label_str
+        else:
+            post_label = ""
 
-        first_core_match = f'match({self.core_node.return_id}:{self.core_node.label}) '
-
-        if all([branch.away_from_core for branch in self.branches]):
+        first_core_match = f'match({self.core_node.return_id}:{self.core_node.label}{post_label}) '
+        if all([branch.away_from_core for branch in self.branches]) or self.disable_scan:
             scan_core_str = ""
         else:
             scan_core_str = f"USING SCAN {self.core_node.return_id}:{self.core_node.label}"

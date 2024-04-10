@@ -4,7 +4,9 @@ from cypherdataframe.model.Property import Property
 
 
 ID_PROP = Property(label='id', datatype=str, postfix="_id")
+QUANTITY_PROP = Property(label='quantity', datatype=str, postfix="_q")
 NUMBER_PROP = Property(label='number', datatype=str, postfix="_n")
+LOWER_MATID_PROP = Property(label='lowermaterialId', datatype=str, postfix="_mid")
 ID_PROP_COLLECT = Property(label='id', datatype=list[str], postfix="_id")
 ID_BRANCH_PROP = Property(label='id', datatype=str, postfix="_id")
 CODE_PROP = Property(label='code', datatype=str, postfix="_c")

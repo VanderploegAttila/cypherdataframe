@@ -21,12 +21,15 @@ class Branch:
                self.relationship_cypher_assignment(): (
                     f" type({self.relationship_cypher_assignment()})"
                     f" as {self.relationship_cypher_assignment()} "
-                ),
-                self.relationship_direction_cypher_assignment(): (
-                    f" (startNode({self.relationship_cypher_assignment()}) = {core_node_assignment})"
-                    f" as {self.relationship_direction_cypher_assignment()} "
                 )
             }
+            if self.away_from_core is None:
+                prop_by = prop_by | {
+                    self.relationship_direction_cypher_assignment(): (
+                        f" (startNode({self.relationship_cypher_assignment()}) = {core_node_assignment})"
+                        f" as {self.relationship_direction_cypher_assignment()} "
+                    )
+                }
         else:
             prop_by = {}
         return prop_by
