@@ -16,8 +16,8 @@ class AttachableTableQuery:
     post_label: str | None = None
     attachable_return_id: str = "a"
     disable_scan: bool = False
-    relationship = None
-    away_from_core  = None
+    relationship: str | None = None
+    away_from_core: str | None = None
 
     def to_query(self, skip: int | None = None, limit: int | None = None):
         domain_branch = BranchMaker(

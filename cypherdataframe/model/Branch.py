@@ -16,6 +16,7 @@ class Branch:
             self
             , core_node_assignment: str
             ):
+        prop_by = {}
         if self.relationship == None:
             prop_by = {
                self.relationship_cypher_assignment(): (
@@ -23,15 +24,13 @@ class Branch:
                     f" as {self.relationship_cypher_assignment()} "
                 )
             }
-            if self.away_from_core is None:
-                prop_by = prop_by | {
-                    self.relationship_direction_cypher_assignment(): (
-                        f" (startNode({self.relationship_cypher_assignment()}) = {core_node_assignment})"
-                        f" as {self.relationship_direction_cypher_assignment()} "
-                    )
-                }
-        else:
-            prop_by = {}
+        if self.away_from_core is None:
+            prop_by = prop_by | {
+                self.relationship_direction_cypher_assignment(): (
+                    f" (startNode({self.relationship_cypher_assignment()}) = {core_node_assignment})"
+                    f" as {self.relationship_direction_cypher_assignment()} "
+                )
+            }
         return prop_by
 
     def relationship_direction_cypher_assignment(self) -> str:
